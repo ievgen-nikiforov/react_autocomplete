@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import './App.scss';
 import { peopleFromServer } from './data/people';
 import classNames from 'classnames';
@@ -27,13 +27,17 @@ export const App: React.FC<AppProps> = ({ debounceDelay = 300 }) => {
   );
 
   // Debounced filter function
+  const lastFiltered = useRef('');
   const debouncedFilter = React.useMemo(
     () =>
       debounce((value: string) => {
-        const filtered = peopleFromServer.filter(person =>
-          person.name.toLowerCase().includes(value.toLowerCase()),
-        );
-        setFilteredPeople(filtered);
+        if (value !== lastFiltered.current && value.trim() !== '') {
+          lastFiltered.current = value;
+          const filtered = peopleFromServer.filter(person =>
+            person.name.toLowerCase().includes(value.toLowerCase()),
+          );
+          setFilteredPeople(filtered);
+        }
       }, debounceDelay),
     [debounceDelay],
   );
